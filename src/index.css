@@ -1,0 +1,30 @@
+@import "tailwindcss";
+
+/* Utilities used by the sample layout */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.fade-swap {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Limit markdown blocks in the timeline and enable scroll when overflowing */
+.timeline-markdown {
+  max-height: 500px;
+  overflow: auto;
+}
+
+/* Hide scrollbars for timeline markdown content */
+.timeline-markdown::-webkit-scrollbar {
+  display: none;
+}
+.timeline-markdown {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
