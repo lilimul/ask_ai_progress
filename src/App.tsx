@@ -236,6 +236,7 @@ export default function App() {
         </header>
 
         <div className="flex flex-col gap-2 min-h-[275px] lg:min-h-[300px] justify-top pt-[50px] lg:pt-[75px] pb-[50px] lg:pb-[75px] text-balance px-4">
+          <p className="text-lg font-medium text-gray-600 dark:text-gray-400">你好</p>
           {isEditingApiKey ? (
             <input
               autoFocus
