@@ -58,6 +58,8 @@ type ModelStatus = {
 
 type ModelStatusMap = Partial<Record<RequestKey, ModelStatus>>
 
+const TIMELINE_LABELS = ['2018', '2019', '2021', '2022', '2023', '2025'] as const
+
 export default function App() {
   function ModelMeta({ k }: { k: ModelKey }) {
     const meta = MODEL_META[k]
@@ -119,6 +121,12 @@ export default function App() {
       const target = Math.min(elLeft, elRight - container.clientWidth + peek)
       container.scrollTo({ left: Math.max(0, Math.min(target, maxLeft)), behavior: 'smooth' })
     }
+  }
+
+  function jumpToRandomNode() {
+    const randomIndex = Math.floor(Math.random() * TIMELINE_LABELS.length)
+    const randomLabel = TIMELINE_LABELS[randomIndex]
+    ensureFullyVisible(randomLabel)
   }
 
   useEffect(() => {
@@ -292,6 +300,23 @@ export default function App() {
                 >
                   <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" xmlns="http://www.w3.org/2000/svg" className="icon">
                     <path d="M8.99992 16V6.41407L5.70696 9.70704C5.31643 10.0976 4.68342 10.0976 4.29289 9.70704C3.90237 9.31652 3.90237 8.6835 4.29289 8.29298L9.29289 3.29298L9.36907 3.22462C9.76184 2.90427 10.3408 2.92686 10.707 3.29298L15.707 8.29298L15.7753 8.36915C16.0957 8.76192 16.0731 9.34092 15.707 9.70704C15.3408 10.0732 14.7618 10.0958 14.3691 9.7754L14.2929 9.70704L10.9999 6.41407V16C10.9999 16.5523 10.5522 17 9.99992 17C9.44764 17 8.99992 16.5523 8.99992 16Z" />
+                  </svg>
+                </button>
+                <button
+                  aria-label="Jump to random timeline node"
+                  title="随机定位时间节点"
+                  onClick={jumpToRandomNode}
+                  className="h-[36px] w-[36px] rounded-full bg-gray-200 dark:bg-gray-700 text-black dark:text-white flex items-center justify-center shrink-0 cursor-pointer hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="2" y="2" width="8" height="8" rx="1" />
+                    <rect x="14" y="2" width="8" height="8" rx="1" />
+                    <rect x="2" y="14" width="8" height="8" rx="1" />
+                    <rect x="14" y="14" width="8" height="8" rx="1" />
+                    <circle cx="6" cy="6" r="1" fill="currentColor" />
+                    <circle cx="18" cy="6" r="1" fill="currentColor" />
+                    <circle cx="6" cy="18" r="1" fill="currentColor" />
+                    <circle cx="18" cy="18" r="1" fill="currentColor" />
                   </svg>
                 </button>
               </div>
