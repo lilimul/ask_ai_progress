@@ -1,5 +1,5 @@
 {
-  "name": "ask-ai-progress",
+  "name": "linguaflow",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -11,10 +11,14 @@
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.12",
+    "framer-motion": "^11.15.0",
+    "lucide-react": "^0.468.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
-    "react-markdown": "^9.1.0",
-    "tailwindcss": "^4.1.12"
+    "react-router-dom": "^7.1.1",
+    "recharts": "^2.15.0",
+    "tailwindcss": "^4.1.12",
+    "zustand": "^5.0.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.33.0",
