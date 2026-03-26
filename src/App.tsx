@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import systemPrompts from './prompts/system.json'
 
+// 各 GPT 模型的元数据，包括背景信息和统计数据
 const MODEL_META = {
   'gpt1': {
     background:
@@ -11,7 +12,7 @@ const MODEL_META = {
   },
   'gpt2': {
     background:
-      '2019 年发布的第二代 GPT，基于 WebText 语料，按阶段开放，从 124M/355M/774M 到 1.5B（2019-11-05 全量放出）。以“更大规模 + 纯自监督”验证了零样本/少样本泛化能力。',
+      '2019 年发布的第二代 GPT，基于 WebText 语料，按阶段开放，从 124M/355M/774M 到 1.5B（2019-11-05 全量放出）。以"更大规模 + 纯自监督"验证了零样本/少样本泛化能力。',
     stats:
       '研究/开发者为主的影响力；未有面向消费者的用户量披露（因滥用风险先分阶段发布，后全量开源）。'
   },
@@ -41,7 +42,9 @@ const MODEL_META = {
   }
 }
 
+// 模型键类型，用于 MODEL_META 对象
 type ModelKey = keyof typeof MODEL_META
+// 请求键类型，用于标识不同的 API 请求
 type RequestKey =
   | 'openai/gpt-5-mini'
   | 'openai/gpt-4-0314'
@@ -50,15 +53,19 @@ type RequestKey =
   | 'emulate/gpt2'
   | 'emulate/text-davinci-001'
 
+// 模型状态类型，记录请求的加载状态、内容和错误信息
 type ModelStatus = {
   loading: boolean
   content: string
   error: string | null
 }
 
+// 模型状态映射类型，将请求键映射到对应的状态
 type ModelStatusMap = Partial<Record<RequestKey, ModelStatus>>
 
+// 主应用组件
 export default function App() {
+  // 显示模型元数据的子组件
   function ModelMeta({ k }: { k: ModelKey }) {
     const meta = MODEL_META[k]
     if (!meta) return null
@@ -69,19 +76,30 @@ export default function App() {
       </div>
     )
   }
+  // 标题编辑状态
   const [isEditingTitle, setIsEditingTitle] = useState(false)
+  // 标题输入框的值
   const [titleInputValue, setTitleInputValue] = useState('')
+  // API Key 编辑状态
   const [isEditingApiKey, setIsEditingApiKey] = useState(false)
+  // API Key 的值
   const [apiKeyValue, setApiKeyValue] = useState('')
+  // 默认标题文本
   const defaultTitleText = 'What would you say if you could talk to a future OpenAI model?'
+  // 显示的标题
   const [displayTitle, setDisplayTitle] = useState(defaultTitleText)
+  // 各模型的请求状态
   const [modelStatus, setModelStatus] = useState<ModelStatusMap>({})
 
+  // 是否有任何模型正在加载
   const isAnyLoading = Object.values(modelStatus).some((s) => s?.loading)
 
+  // 滚动容器的引用
   const scrollContainerRef = useRef<HTMLDivElement | null>(null)
+  // 完全可见的时间线条目集合
   const [fullyVisibleSet, setFullyVisibleSet] = useState<Set<string>>(new Set())
 
+  // 计算哪些时间线条目完全在视口中可见
   function computeVisibility() {
     const container = scrollContainerRef.current
     if (!container) return
@@ -98,12 +116,13 @@ export default function App() {
     setFullyVisibleSet(next)
   }
 
+  // 确保指定的时间线条目完全可见
   function ensureFullyVisible(label: string) {
     const container = scrollContainerRef.current
     if (!container) return
     const el = container.querySelector<HTMLElement>(`section[data-timeline-item="${label}"]`)
     if (!el) return
-    const peek = 24 // extra pixels to reveal the next item
+    const peek = 24 // 额外像素，用于显示下一个条目的一部分
     const elLeft = el.offsetLeft
     const elRight = elLeft + el.offsetWidth
     const maxLeft = container.scrollWidth - container.clientWidth
@@ -111,16 +130,17 @@ export default function App() {
     const viewRight = viewLeft + container.clientWidth
 
     if (elLeft < viewLeft) {
-      // Bring the item fully into view from the left, try to keep a small peek on the right if possible
+      // 从左侧将条目完全移入视图，尽量在右侧保留一个小的预览区域
       const target = Math.min(elLeft, Math.max(0, elRight - container.clientWidth + peek))
       container.scrollTo({ left: Math.max(0, Math.min(target, maxLeft)), behavior: 'smooth' })
     } else if (elRight > viewRight) {
-      // Bring the item fully into view from the right, leaving a peek area on the right for the next item
+      // 从右侧将条目完全移入视图，在右侧为下一个条目保留预览区域
       const target = Math.min(elLeft, elRight - container.clientWidth + peek)
       container.scrollTo({ left: Math.max(0, Math.min(target, maxLeft)), behavior: 'smooth' })
     }
   }
 
+  // 初始化可见性计算和窗口大小调整监听
   useEffect(() => {
     computeVisibility()
     const onResize = () => computeVisibility()
@@ -128,7 +148,7 @@ export default function App() {
     return () => window.removeEventListener('resize', onResize)
   }, [])
 
-  // Initialize OpenRouter API key from URL query parameter `?key=`
+  // 从 URL 查询参数 `?key=` 初始化 OpenRouter API Key
   useEffect(() => {
     try {
       const params = new URLSearchParams(window.location.search)
@@ -139,6 +159,7 @@ export default function App() {
     } catch {}
   }, [])
 
+  // 调用 OpenRouter API 获取聊天响应
   async function fetchOpenRouterChat(
     model: string,
     prompt: string,
@@ -169,11 +190,13 @@ export default function App() {
     return content
   }
 
+  // 提交提示词，向所有模型发起请求
   function submitPrompt() {
     const trimmed = titleInputValue.trim()
     if (trimmed) setDisplayTitle(trimmed)
     setIsEditingTitle(false)
 
+    // 检查是否提供了 API Key
     if (!apiKeyValue.trim()) {
       setModelStatus((prev) => ({
         ...prev,
@@ -187,6 +210,7 @@ export default function App() {
       return
     }
 
+    // 定义所有要发起的请求
     const requests: Array<{ key: RequestKey; model: string; systemPrompt: string | null | undefined }> = [
       { key: 'openai/gpt-5-mini', model: 'openai/gpt-5-mini', systemPrompt: null },
       { key: 'openai/gpt-4-0314', model: 'openai/gpt-4-0314', systemPrompt: null },
@@ -195,12 +219,13 @@ export default function App() {
       { key: 'emulate/gpt2', model: 'openai/gpt-5-mini', systemPrompt: systemPrompts?.gpt2 as string | undefined },
       { key: 'emulate/text-davinci-001', model: 'openai/gpt-5-mini', systemPrompt: (systemPrompts as Record<string, string | undefined>)?.['text-davinci-001'] },
     ]
+    // 设置所有请求为加载状态
     setModelStatus((prev) => ({
       ...prev,
       ...Object.fromEntries(requests.map((r) => [r.key, { loading: true, content: '', error: null }]))
     }))
 
-    // Kick off each request and update as soon as it resolves
+    // 发起每个请求，并在完成后立即更新状态
     requests.forEach((r) => {
       fetchOpenRouterChat(r.model, trimmed || displayTitle, apiKeyValue, r.systemPrompt)
         .then((content) => {
